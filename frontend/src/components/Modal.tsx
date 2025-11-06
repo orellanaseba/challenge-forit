@@ -3,6 +3,8 @@ interface ModalProps {
     closeModal?: () => void;
 }
 
+import tasksModel from "../model/taskModel";
+
 
 const Modal = ({ visible, closeModal } : ModalProps) => {
     if(!visible) return null;
@@ -12,9 +14,17 @@ const Modal = ({ visible, closeModal } : ModalProps) => {
         const formData = new FormData(e.currentTarget);
         const title = formData.get("title") as string;
         const description = formData.get("description") as string;
+        const createdAt = formData.get("createdAt") as string;
 
-        console.log({title, description});
+        const newTask = {
+            id: crypto.randomUUID(),
+            title,
+            description,
+            createdAt,
+            completed: false
+        };
 
+        tasksModel.push(newTask);
     }
 
     return (
@@ -38,7 +48,7 @@ const Modal = ({ visible, closeModal } : ModalProps) => {
 
                 <div className="flex flex-col gap-1">
                     <label className="font-semibold" htmlFor="createdAt">Fecha de entrega</label>
-                    <input className="text-sm focus:outline-zinc-300 rounded-xl p-2 bg-white border-zinc-300 border" type="date" />
+                    <input name="createdAt" id="createdAt" className="text-sm focus:outline-zinc-300 rounded-xl p-2 bg-white border-zinc-300 border" type="date" />
                 </div>
                 
                 <hr className="text-zinc-100 w-full" />

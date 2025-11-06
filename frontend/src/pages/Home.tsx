@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Task from "../components/Task";
-import tasksModel from "../model/taskModel";
+// import tasksModel from "../model/taskModel";
 import Modal from "../components/Modal";
 
 const Home = () => {
-    const [tasks, setTasks] = useState<Task[]>(tasksModel);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [openTaskId, setOpenTaskId] = useState<string | null>(null);
     const [isOpenModal, setIsOpenModal] = useState(false);
 
@@ -15,7 +15,25 @@ const Home = () => {
     const handleToggleDescription = (taskId: string) => {
         setOpenTaskId(prev => prev === taskId ? null : taskId);
     }
-    
+
+    useEffect(() => {
+        const getAllTasks = async () => {
+            try {
+                const res = await fetch("http://localhost:3000/api/tasks")
+                if(!res.ok) {
+                    throw new Error(`Error HTTP: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setTasks(data);
+            }
+            catch(err) {
+                console.log(err);
+            }
+        }
+
+        getAllTasks();
+    }, [])
 
     return (
         <main className="flex justify-center flex-col items-center">
@@ -46,9 +64,9 @@ const Home = () => {
                     <span className="opacity-50 text-sm">Comienza agregando tu primera tarea</span>
                     </>
                 ) : (
-                    tasks.map((t, i) => (
+                    tasks.map(t => (
                         <Task
-                            key={i}
+                            key={t.id}
                             id={t.id} 
                             title={t.title}
                             description={t.description}

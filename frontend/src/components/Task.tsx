@@ -3,7 +3,7 @@ interface Task {
     title: string,
     description: string,
     completed: boolean,
-    createdAt: Date,
+    createdAt: string,
     isOpen?: boolean,
     onOpenDescription?: (taskId: string) => void,
 }
@@ -16,14 +16,14 @@ const Task = ({ id, title, description, completed, createdAt, isOpen, onOpenDesc
             <article className="w-full flex justify-between items-center min-h-12">
             <div className="w-52 flex items-center justify-start gap-2">
                 <input type="checkbox" />
-                { title.length > 20 ?  <span className="font-semibold truncate">{ title.slice(0, 25) }...</span> : <span className="font-semibold">{ title }</span>}
+                { title && title.length > 20 ?  <span className="font-semibold truncate">{ title.slice(0, 25) }...</span> : <span className="font-semibold">{ title }</span>}
             </div>
             <div className="min-w-32 max-w-32 text-center">
-                {description.length > 30 ? <p className="truncate font-semibold">{ description.slice(0, 30) }...</p> : <p className="font-semibold">{ description }</p>}
+                {description && description.length > 30 ? <p className="truncate font-semibold">{ description.slice(0, 30) }...</p> : <p className="font-semibold">{ description }</p>}
             </div>
             <div className="flex justify-around min-w-32">
                 <span>{ completed }</span>
-                <span className="font-semibold">{ createdAt.toLocaleDateString() } </span>
+                <span className="font-semibold">{ createdAt } </span>
             </div>
 
             <div className={`flex justify-around items-center`}>

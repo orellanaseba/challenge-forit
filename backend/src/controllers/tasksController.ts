@@ -2,7 +2,8 @@ import type { Request, Response } from "express";
 import { tasks } from "../models/taskModel.js";
 
 export const getTasks = (req: Request, res: Response) => {
-    res.json(tasks);
+    const data = res.json(tasks);
+    return data;
 }
 
 export const postTask = (req: Request, res: Response) => {

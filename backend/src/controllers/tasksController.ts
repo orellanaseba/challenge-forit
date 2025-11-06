@@ -7,8 +7,8 @@ export const getTasks = (req: Request, res: Response) => {
 }
 
 export const postTask = (req: Request, res: Response) => {
-    const { id, title, done } = req.body;
-    tasks.push({id, title, done})
+    const { id, title, done, createdAt } = req.body;
+    tasks.push({id, title, done, createdAt})
     res.json({message: "Tarea creada correctamente."});
 }
 

@@ -1,14 +1,39 @@
 interface Task {
-    id: string,
-    title: string,
-    description: string,
-    completed: boolean,
-    createdAt: string,
-    isOpen?: boolean,
-    onOpenDescription?: (taskId: string) => void,
+    id: string;
+    title: string;
+    description: string;
+    completed: boolean;
+    createdAt: string;
+    isOpen?: boolean;
+    onOpenDescription?: (taskId: string) => void;
+    handleToggleModal?: () => void;
+    onEditTask?: (task: Task) => void;
 }
 
-const Task = ({ id, title, description, completed, createdAt, isOpen, onOpenDescription } : Task) => {
+const Task = ({ id, title, description, completed, createdAt, isOpen, onOpenDescription, handleToggleModal, onEditTask } : Task) => {
+
+    const editTask = async (id: Task["id"]) => {
+        onEditTask?.({id, title, description, completed, createdAt});
+        handleToggleModal?.();
+    }
+
+    const deleteTask = async (id: Task["id"]) => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/tasks/${id}`, {
+                method: "DELETE",
+                headers: {"Content-Type": "application/json"}
+            });
+
+            if(!res.ok) {
+                console.log("Erorr al eliminar la tarea.");
+            }
+
+            console.log({ message: "Tarea eliminada correctamente.", id, title})
+        }
+        catch(err) {
+            console.log("Error al eliminar la tarea: ", err);
+        }
+    }
 
     return (
         <article id={id} className={`relative hover:border-zinc-300 hover:border bg-white border-zinc-200 border w-full rounded-xl flex flex-col items-center justify-between ${isOpen ? "min-h-32" : "min-h-16"} p-2 shadow-zinc-200 shadow`}>
@@ -39,8 +64,8 @@ const Task = ({ id, title, description, completed, createdAt, isOpen, onOpenDesc
                 </div>
 
                 <div className="flex items-center justify-around w-[10%]">
-                    <img title="Editar" className="cursor-pointer w-5 h-5" src="/edit-icon.png" alt="edit icon" />
-                    <img title="Eliminar" className="cursor-pointer w-5 h-5" src="/trash-icon.svg" alt="delete icon" />
+                    <img onClick={() => editTask(id)} title="Editar" className="cursor-pointer w-5 h-5" src="/edit-icon.png" alt="edit icon" />
+                    <img onClick={() => deleteTask(id)} title="Eliminar" className="cursor-pointer w-5 h-5" src="/trash-icon.svg" alt="delete icon" />
                 </div>
             </div>
 

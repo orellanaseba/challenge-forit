@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import Task from "../components/Task";
-// import tasksModel from "../model/taskModel";
 import Modal from "../components/Modal";
 
 const Home = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [openTaskId, setOpenTaskId] = useState<string | null>(null);
     const [isOpenModal, setIsOpenModal] = useState(false);
+    const [editTask, setEditTask] = useState<Task | null>(null);
+
+    const handleEditTask = (task: Task) => {
+        setEditTask(task);
+    }
 
     const handleToggleModal = () => {
         setIsOpenModal(prev => !prev);
@@ -17,23 +21,40 @@ const Home = () => {
     }
 
     useEffect(() => {
-        const getAllTasks = async () => {
+        const storedTasks = localStorage.getItem("tasks");
+
+        if(storedTasks) {
+            setTasks(JSON.parse(storedTasks));
+            return;
+        }
+
+        const fetchTasks = async () => {
             try {
                 const res = await fetch("http://localhost:3000/api/tasks")
                 if(!res.ok) {
                     throw new Error(`Error HTTP: ${res.status}`);
                 }
 
-                const data = await res.json();
+                const data : Task[] = await res.json();
                 setTasks(data);
+
+                localStorage.setItem("tasks", JSON.stringify(data));
             }
             catch(err) {
                 console.log(err);
             }
         }
 
-        getAllTasks();
+        fetchTasks();
     }, [])
+
+    const handleCreateTask = (newTask: Task) => {
+        setTasks(prev => {
+            const updated = [...prev, newTask];
+            localStorage.setItem("tasks", JSON.stringify(updated));
+            return updated;
+        })
+    }
 
     return (
         <main className="flex justify-center flex-col items-center">
@@ -48,15 +69,21 @@ const Home = () => {
             </section>
 
             <section className="p-5 w-[60%] mt-4 flex justify-center gap-2 items-center min-h-20 bg-white rounded-lg border-zinc-200 border shadow-zinc-200 shadow">
-                <Modal visible={isOpenModal} closeModal={handleToggleModal}/>
-                <div onClick={handleToggleModal} className="p-2 text-sm flex justify-center h-10 w-full items-center border-zinc-200 border text-white rounded-xl bg-orange-500 font-semibold cursor-pointer hover:bg-orange-600">
+                <Modal
+                    visible={isOpenModal}
+                    closeModal={handleToggleModal}
+                    handleCreateTask={handleCreateTask}
+                    taskToEdit={editTask}
+                />
+                
+                <div onClick={() => { handleToggleModal(); setEditTask(null) }} className="p-2 text-sm flex justify-center h-10 w-full items-center border-zinc-200 border text-white rounded-xl bg-orange-500 font-semibold cursor-pointer hover:bg-orange-600">
                     <img className="w-4 h-4" src="/plus-icon.svg" alt="plus icon" />
                     <span className="ml-2">Agregar nueva tarea</span>
                 </div>
 
             </section>
 
-            <section className={`${tasks.length == 0 ? "w-[60%] min-h-72 max-h-72 mt-6 bg-zinc-100 rounded-xl flex flex-col items-center justify-center border-zinc-200 border shadow-zinc-200 shadow gap-2" : `w-[60%] min-h-80 max-h-72 mt-6 rounded-xl flex flex-col items-center justify-start gap-2 ${tasks.length > 5 ? "overflow-y-scroll" : ""}`} `}>
+            <section className={`${tasks.length == 0 ? "w-[60%] min-h-72 max-h-72 mt-6 bg-white rounded-xl flex flex-col items-center justify-center border-zinc-200 border shadow-zinc-200 shadow gap-2" : `w-[60%] min-h-80 max-h-72 mt-6 rounded-xl flex flex-col items-center justify-start gap-2 ${tasks.length > 5 ? "overflow-y-scroll" : ""}`} `}>
                 {tasks.length == 0 ? (
                     <>
                     <img className="bg-orange-500 border-zinc-300 border rounded-full p-2 w-12 h-12" src="/check-icon.svg" alt="check icon" />
@@ -74,7 +101,8 @@ const Home = () => {
                             createdAt={t.createdAt}
                             isOpen={openTaskId === t.id}
                             onOpenDescription={handleToggleDescription}
-                            
+                            handleToggleModal={handleToggleModal}
+                            onEditTask={handleEditTask}
                         />
                     ))
                 )}

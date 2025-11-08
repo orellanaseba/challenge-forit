@@ -1,4 +1,4 @@
-export interface Task {
+export interface TaskItem {
     id: string;
     title: string;
     description: string;
@@ -6,4 +6,4 @@ export interface Task {
     createdAt: string;
 }
 
-export const tasks: Task[] = [];
+export const tasks: TaskItem[] = [];

@@ -15,7 +15,6 @@ export const postTask = (req: Request, res: Response) => {
 
 export const getTaskById = (req: Request, res: Response) => {
     const { id } = req.params;
-    console.log("ID DE LA TAREA: " + id);
     const task = tasks.find(task => task.id == id);
 
     console.log(task);
@@ -39,9 +38,6 @@ export const putTask = (req: Request, res: Response) => {
     const update = req.body;
 
     const taskIndex = tasks.findIndex(task => task.id === id);
-    console.log(taskIndex);
-    console.log(id);
-    console.log(update);
 
     if(taskIndex === -1) {
         return res.status(404).json({message: "Tarea no encontrada"});

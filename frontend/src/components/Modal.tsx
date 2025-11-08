@@ -5,12 +5,11 @@ interface ModalProps {
     visible: boolean;
     closeModal?: () => void;
     handleCreateTask?: (newTask: Task) => void;
-    handleUpdateTask?: (updateTask: Task) => void;
     taskToEdit?: Task | null;
+    handleEditTask?: (task: Task) => void;
 }
 
-const Modal = ({ visible, closeModal, handleCreateTask, handleUpdateTask, taskToEdit } : ModalProps) => {
-    if(!visible) return null;
+const Modal = ({ visible, closeModal, handleCreateTask, taskToEdit, handleEditTask } : ModalProps) => {
 
     const [formData, setFormData] = useState<Task>({
         id: taskToEdit?.id || crypto.randomUUID(),
@@ -22,19 +21,16 @@ const Modal = ({ visible, closeModal, handleCreateTask, handleUpdateTask, taskTo
 
     // Cambia el modo de creación y edición de tareas.
     useEffect(() => {
-        if(taskToEdit) {
-            setFormData(taskToEdit);
-        }
-        else {
-            setFormData({
-                id: crypto.randomUUID(),
-                title: "",
-                description: "",
-                completed: false,
-                createdAt: ""
-            })
-        }
-    }, [taskToEdit, visible]);
+        setFormData({
+            id: taskToEdit?.id || crypto.randomUUID(),
+            title: taskToEdit?.title || "",
+            description: taskToEdit?.description || "",
+            completed: taskToEdit?.completed || false,
+            createdAt: taskToEdit?.createdAt || "",
+        })
+    }, [taskToEdit])
+
+    if(!visible) return null;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -42,42 +38,32 @@ const Modal = ({ visible, closeModal, handleCreateTask, handleUpdateTask, taskTo
         try {
 
             if(taskToEdit) {
-                const res = await fetch(`http://localhost:3000/api/tasks/${taskToEdit?.id}`, {
-                    method: "PUT",
-                    headers: {"Content-Type" : "application/json"},
-                    body: JSON.stringify(formData)
-                });
-
-                if(!res.ok) throw new Error("Error al actualizar la tarea.");
-
-                handleUpdateTask?.(formData);
+                handleEditTask?.(formData);
             }
             else {
+                const res = await fetch("http://localhost:3000/api/tasks", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(formData)
+                })
 
-            const newTask = {...formData, id: crypto.randomUUID()};
+                const data = await res.json();
 
-            const res = await fetch("http://localhost:3000/api/tasks",  {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newTask)
-            })
+                console.log(data);
 
-            if(!res.ok) throw new Error("Error al guardar la tarea en el servidor");
-
-            handleCreateTask?.(newTask);
+                handleCreateTask?.(formData)
+                closeModal?.();
+            }
         }
-        closeModal?.();
-        
-    }
         catch(err) {
-            console.log("Error al crear una tarea nueva: ", err);
-        }
+            console.error("Error en el servidor:", err);
+        }  
     }
 
     return (
         <div className={`${visible ? "flex" : "hidden"} flex flex-col items-start absolute top-13 w-[35%] z-10 mt-5 h-[70%] rounded-xl p-5 bg-white shadow-zinc-300 shadow`}>
             <div className="flex items-center justify-between w-full">
-                <span className="font-semibold text-xl">Nueva tarea</span>
+                <span className="font-semibold text-xl">{taskToEdit ? "Editar tarea" : "Nueva tarea"}</span>
                 <img onClick={closeModal} className="w-5 h-5 cursor-pointer" src="/x-icon.png" alt="" />
             </div>
             <hr className="w-full text-zinc-100 mt-2" />

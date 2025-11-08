@@ -6,10 +6,54 @@ const Home = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [openTaskId, setOpenTaskId] = useState<string | null>(null);
     const [isOpenModal, setIsOpenModal] = useState(false);
-    const [editTask, setEditTask] = useState<Task | null>(null);
+    const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
-    const handleEditTask = (task: Task) => {
-        setEditTask(task);
+    const getTaskToEdit = (taskId: Task["id"]) => {
+        const findTask = tasks.find(task => task.id === taskId);
+        setTaskToEdit?.(findTask || null);
+    }
+
+    const handleEditTask = async (task: Task) => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/tasks/${task.id}`, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(task)
+            })
+
+            if(!res.ok) {
+                throw new Error("Error al actualizar la tarea.");
+            }
+
+            const data : Task = await res.json();
+
+            setTasks(prev => prev.map(t => t.id == data.id ? data : t));
+        
+            setTaskToEdit(null);
+            setIsOpenModal(false);
+
+        }
+        catch(err) {
+            console.error("Error al actualizar la tarea:", err);
+        }
+    }
+
+    const deleteTask = async (id: Task["id"]) => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/tasks/${id}`, {
+                method: "DELETE",
+                headers: {"Content-Type": "application/json"}
+            });
+
+            if(!res.ok) {
+                console.log("Erorr al eliminar la tarea.");
+            }
+
+            console.log({ message: "Tarea eliminada correctamente.", id})
+        }
+        catch(err) {
+            console.log("Error al eliminar la tarea: ", err);
+        }
     }
 
     const handleToggleModal = () => {
@@ -21,13 +65,6 @@ const Home = () => {
     }
 
     useEffect(() => {
-        const storedTasks = localStorage.getItem("tasks");
-
-        if(storedTasks) {
-            setTasks(JSON.parse(storedTasks));
-            return;
-        }
-
         const fetchTasks = async () => {
             try {
                 const res = await fetch("http://localhost:3000/api/tasks")
@@ -37,16 +74,14 @@ const Home = () => {
 
                 const data : Task[] = await res.json();
                 setTasks(data);
-
-                localStorage.setItem("tasks", JSON.stringify(data));
             }
             catch(err) {
-                console.log(err);
+                console.error("Error al obtener las tareas:", err);
             }
         }
 
         fetchTasks();
-    }, [])
+    }, [tasks])
 
     const handleCreateTask = (newTask: Task) => {
         setTasks(prev => {
@@ -73,10 +108,11 @@ const Home = () => {
                     visible={isOpenModal}
                     closeModal={handleToggleModal}
                     handleCreateTask={handleCreateTask}
-                    taskToEdit={editTask}
+                    taskToEdit={taskToEdit}
+                    handleEditTask={handleEditTask}
                 />
                 
-                <div onClick={() => { handleToggleModal(); setEditTask(null) }} className="p-2 text-sm flex justify-center h-10 w-full items-center border-zinc-200 border text-white rounded-xl bg-orange-500 font-semibold cursor-pointer hover:bg-orange-600">
+                <div onClick={() => { handleToggleModal(); setTaskToEdit(null)}} className="p-2 text-sm flex justify-center h-10 w-full items-center border-zinc-200 border text-white rounded-xl bg-orange-500 font-semibold cursor-pointer hover:bg-orange-600">
                     <img className="w-4 h-4" src="/plus-icon.svg" alt="plus icon" />
                     <span className="ml-2">Agregar nueva tarea</span>
                 </div>
@@ -102,7 +138,8 @@ const Home = () => {
                             isOpen={openTaskId === t.id}
                             onOpenDescription={handleToggleDescription}
                             handleToggleModal={handleToggleModal}
-                            onEditTask={handleEditTask}
+                            handleDeleteTask={deleteTask}
+                            taskToEdit={getTaskToEdit}
                         />
                     ))
                 )}

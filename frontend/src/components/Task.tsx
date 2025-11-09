@@ -32,12 +32,12 @@ const Task = ({ id, title, description, completed, createdAt, isOpen, onOpenDesc
                     { title && title.length > 20 ?  <span className="font-semibold truncate text-sm">{ title.slice(0, 25) }...</span> : <span className="font-semibold text-sm">{ title }</span>}
                 </Link>
             </div>
-            <div className="min-w-56 max-w-60 md:min-w-64 text-center text-sm">
+            <div className="min-w-56 max-w-60 sm:min-w-64 text-center text-sm">
                 {description && description.length > 30 ? <p className="truncate font-normal">{ description.slice(0, 30) }...</p> : <p className="font-normal">{ description }</p>}
             </div>
             <div className="flex items-center justify-between min-w-32">
                 <span>{ completed }</span>
-                <span className="font-semibold hidden md:block">{ createdAt } </span>
+                <span className="font-semibold hidden sm:block">{ createdAt } </span>
             </div>
 
             <div className={`flex justify-around items-center`}>
@@ -50,9 +50,10 @@ const Task = ({ id, title, description, completed, createdAt, isOpen, onOpenDesc
             <div className={`${isOpen ? "flex" : "hidden"} flex justify-between w-full min-h-12`}>
                 <div className="w-[90%]">
                     {description && description.length > 30 ? <p className="truncate font-normal text-sm">{ description.slice(0, 30) }...</p> : <p className="font-normal text-sm">{ description }</p>}
+                    <span className="font-semibold sm:hidden text-xs">{ createdAt } </span>
                 </div>
 
-                <div className="flex items-center justify-around w-[10%] flex-col md:flex-row">
+                <div className="flex items-center justify-around w-[10%] flex-col sm:flex-row">
                     <Link to={`/taskForm/edit/${id}`}>
                         <img title="Editar" className="cursor-pointer w-5 h-5" src="/edit-icon.png" alt="edit icon" />
                     </Link>

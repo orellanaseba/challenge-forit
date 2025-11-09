@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type Task from "./Task";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 interface TaskFormProps {
@@ -11,6 +11,7 @@ interface TaskFormProps {
 const TaskForm = ({ handleCreateTask } : TaskFormProps) => {
     const [task, setTask] = useState<Task | null>(null);
     const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if(!id) return;
@@ -82,6 +83,7 @@ const TaskForm = ({ handleCreateTask } : TaskFormProps) => {
 
             if(task) {
                 handleEditTask?.(formData);
+                navigate("/");
             }
             else {
                 const res = await fetch(`${VITE_API_URL}/api/tasks`, {
@@ -95,7 +97,7 @@ const TaskForm = ({ handleCreateTask } : TaskFormProps) => {
                 console.log(data);
 
                 handleCreateTask?.(formData);
-                <Navigate to="/" />;
+                navigate("/");
             }
         }
         catch(err) {

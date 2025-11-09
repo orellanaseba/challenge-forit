@@ -28,23 +28,23 @@ const TaskItem = () => {
     }, [])
 
     return (
-        <main className="flex justify-center flex-col items-center relative">
+        <main className="flex justify-center flex-col items-center">
             <Link to="/taskList" className="absolute top-2 left-5 font-semibold text-black underline">Volver</Link>
-            <section className="w-[60%] flex flex-col items-center mt-4 gap-2">
+            <section className="w-[80%] sm:w-[60%] flex flex-col items-center mt-10 gap-2">
                 { task ?
                 <section className="relative hover:border-zinc-300 hover:border bg-white border-zinc-200 border w-full h-96 rounded-xl flex flex-col items-center justify-start p-2 shadow-zinc-200 shadow gap-2">
                     <article className="w-full text-center flex justify-around items-center">
-                        <span className={`font-semibold ${task.completed ? "underline text-green-400" : ""}`}>{ task.completed ? "Completado" : "No completado" } </span>
+                        <span className={`font-semibold ${task.completed ? "underline text-green-400" : ""} text-xs sm:text-sm`}>{ task.completed ? "Completado" : "No completado" } </span>
                         {task.title.length > 20 ? (
-                            <p title={task.title} className="font-semibold text-2xl truncate">{task.title.length > 20 ? task.title.slice(0, 20) + "..." : task.title}</p>
+                            <p title={task.title} className="font-semibold text-lg sm:text-2xl truncate">{task.title.length > 20 ? task.title.slice(0, 20) + "..." : task.title}</p>
                         ): 
-                            <p className="font-semibold text-2xl">{task.title.length > 20 ? task.title.slice(0, 20) : task.title}</p>
+                            <p className="font-semibold text-lg sm:text-2xl">{task.title.length > 20 ? task.title.slice(0, 20) : task.title}</p>
                         }
-                        <span className="font-semibold">{ task.createdAt }</span>
+                        <span className="font-semibold text-xs sm:text-sm">{ task.createdAt }</span>
                     </article>
                     <hr className="w-full text-zinc-200" />
                     <article className="w-full h-full">
-                        <p className="font-semibold">Descripción: { task.description }</p>
+                        <p className="font-semibold text-sm sm:text-lg wrap-break-word">Descripción: { task.description }</p>
                     </article>
                 </section>
                 : <h1>No hay tarea para mostrar</h1>}
